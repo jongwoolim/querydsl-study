@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,8 @@ import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.*;
@@ -76,6 +79,58 @@ public class QuerydslBasicTest {
                 .fetchOne();
 
         assertThat(findMember.getUsername()).isEqualTo("member1");
+
+    }
+
+    @Test
+    public void search(){
+        final Member findMember = jpaQueryFactory
+                .selectFrom(member)
+                .where(member.username.eq("member1").and(member.age.eq(10)))
+                .fetchOne();
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+        assertThat(findMember.getAge()).isEqualTo(10);
+
+    }
+
+    @Test
+    public void searchAndParam(){
+        final Member findMember = jpaQueryFactory
+                .selectFrom(member)
+                .where(
+                        member.username.eq("member1"),
+                        member.age.eq(10)
+                )
+                .fetchOne();
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+        assertThat(findMember.getAge()).isEqualTo(10);
+
+    }
+
+    @Test
+    public void resultFetch(){
+//        final List<Member> fetch = jpaQueryFactory
+//                .selectFrom(member)
+//                .fetch();
+//        final Member fetchOne = jpaQueryFactory
+//                .selectFrom(QMember.member).fetchOne();
+//
+//        final Member fetchFirst = jpaQueryFactory
+//                .selectFrom(QMember.member)
+//                .fetchFirst();
+
+        final QueryResults<Member> results = jpaQueryFactory
+                .selectFrom(QMember.member)
+                .fetchResults();
+
+        results.getTotal();
+        final List<Member> content = results.getResults();
+
+        final long total = jpaQueryFactory
+                .selectFrom(member)
+                .fetchCount();
 
     }
 }
