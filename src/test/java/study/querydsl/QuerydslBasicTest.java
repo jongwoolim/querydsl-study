@@ -446,4 +446,32 @@ public class QuerydslBasicTest {
 
         result.forEach(System.out::println);
     }
+
+    @Test
+    public  void simpleProjection(){
+        final List<String> result = jpaQueryFactory
+                .select(member.username)
+                .from(member)
+                .fetch();
+
+        result.forEach(System.out::println);
+    }
+
+    // jpa & querydsl은 리포지토리 계층에서만 쓰자..
+    // 앞단에서 dto로 바꿔서 사용하자
+    @Test
+    public void tupleProjection(){
+        final List<Tuple> result = jpaQueryFactory
+                .select(member.username, member.age)
+                .from(member)
+                .fetch();
+
+        result.forEach((t) -> {
+            final  String uesrname = t.get(member.username);
+            final  Integer age = t.get(member.age);
+            System.out.println(uesrname);
+            System.out.println(age);
+        });
+
+    }
 }
