@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.QMemberDto;
 import study.querydsl.dto.UserDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
@@ -466,6 +467,7 @@ public class QuerydslBasicTest {
     // 앞단에서 dto로 바꿔서 사용하자
     @Test
     public void tupleProjection(){
+        // Tuple은 리포지토리 계층에서만 쓰자
         final List<Tuple> result = jpaQueryFactory
                 .select(member.username, member.age)
                 .from(member)
@@ -550,5 +552,23 @@ public class QuerydslBasicTest {
 
         result.forEach(System.out::println);
     }
+
+    @Test
+    public void findDtoByQueryProjection(){
+        // 기존 projections.constructor 인자 추가시 런타임 에러 안 좋은 방식..
+        // @QueryProjection 장점
+        // 생성자 컴파일 단계에서 오류 잡을 수 있음
+        // 단점
+        // MemberDto가 querydsl에 의존 querydsl을 빼면 에러 발생..
+        // 주석만 빼면 크게 문제가 되지 않거나 아키텍처상 Dto는 깔끔하게 쓰는게 바람직
+        final List<MemberDto> result = jpaQueryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
+
+        result.forEach(System.out::println);
+    }
+
+
 
 }
