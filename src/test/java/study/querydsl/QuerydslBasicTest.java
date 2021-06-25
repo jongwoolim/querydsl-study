@@ -673,4 +673,25 @@ public class QuerydslBasicTest {
                 .execute();
     }
 
+    // SQL function은 JPA와 같이 Dialect에 등록된 내용만 호출할 수 있다
+    @Test
+    public void sqlFunction(){
+        final List<String> result = jpaQueryFactory
+                .select(Expressions.stringTemplate("function('replace', {0},{1},{2})",
+                        member.username, "member", "m"))
+                .from(member)
+                .fetch();
+    }
+
+    @Test
+    public void sqlFunction2(){
+        final List<String> result = jpaQueryFactory
+                .select(member.username)
+                .from(member)
+//                .where(member.username.eq(Expressions.stringTemplate("function('lower',{0})",
+//                        member.username)))
+                .where(member.username.eq(member.username.lower()))
+                .fetch();
+
+    }
 }
