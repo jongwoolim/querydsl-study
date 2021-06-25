@@ -632,5 +632,45 @@ public class QuerydslBasicTest {
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
 
+    @Test
+    public void bulkUpdate(){
+        //member1 = 10 -> DB member1
+        //member2 = 20 -> DB member2
+        //member3 = 30 -> DB member3
+        //member4 = 40 -> DB member4
+        final long count = jpaQueryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+        //벌크 연산시 영속성 컨테스트를 날리자..!
+        em.flush();
+        em.clear();
+
+        //member1 = 10 -> DB 비회원
+        //member2 = 20 -> DB 비회원
+        //member3 = 30 -> DB member3
+        //member4 = 40 -> DB member4
+        // 셀렉트시 영속성 컨테스트에 존재하면 DB데이터를 날린다..
+        // 고로 1차 캐시된 영속화된 엔티티가 셀렉트되어진다 결론 디비랑 데이터가 달라짐,,
+        // 영속성 컨테스트 우선순위가 높다 -> Repeatable Read
+        final List<Member> result = jpaQueryFactory.selectFrom(member).fetch();
+    }
+
+    @Test
+    public void bulkAdd(){
+        final long count = jpaQueryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+    }
+
+    @Test
+    public void bulkDelete(){
+        final long count = jpaQueryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+    }
 
 }
