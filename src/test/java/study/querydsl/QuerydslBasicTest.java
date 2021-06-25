@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
@@ -569,6 +570,33 @@ public class QuerydslBasicTest {
         result.forEach(System.out::println);
     }
 
+    @Test
+    public void dynamicQuery_BooleanBuilder(){
+        String usernameParam = "member1";
+        Integer ageParam = 10;
+
+        List<Member> result = searchMember1(usernameParam, ageParam);
+
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    private List<Member> searchMember1(String usernameCond, Integer ageCond) {
+        // 생성자에 필수로 넘어오는 파라미터를 조건에 넣을 수 있다
+        // 대신 널 방어코드가 있어야 한다 ex) optional
+        BooleanBuilder builder = new BooleanBuilder();
+        if(usernameCond != null){
+            builder.and(member.username.eq(usernameCond));
+        }
+
+        if(ageCond != null){
+            builder.and(member.age.eq(ageCond));
+        }
+
+        return jpaQueryFactory
+                .selectFrom(member)
+                .where(builder)
+                .fetch();
+    }
 
 
 }
