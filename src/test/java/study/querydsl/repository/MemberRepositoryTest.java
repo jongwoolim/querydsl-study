@@ -75,12 +75,12 @@ public class MemberRepositoryTest {
         em.persist(member4);
 
         final MemberSearchCondition condition = new MemberSearchCondition();
-//        condition.setAgeGoe(20);
-//        condition.setAgeLoe(40);
+        condition.setAgeGoe(35);
+        condition.setAgeLoe(40);
         // 조건이 다 빠졌을 경우 디비에 데이터를 다 가져온다
         // 그러므로 limit나 기본적인 페이징을 하는게 좋다
 //        condition.setTeamName("teamB");
-        final List<MemberTeamDto> result = memberRepository.searchByBuilder(condition);
-        assertThat(result).extracting("username").containsExactly("member1","member2","member3","member4");
+        final List<MemberTeamDto> result = memberRepository.search(condition);
+        assertThat(result).extracting("username").containsExactly("member4");
     }
 }
